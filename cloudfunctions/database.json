@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "read": true,
+    "write": true
+  },
+  "collections": [
+    {
+      "collection": "ceramic_records",
+      "permissions": {
+        "read": true,
+        "write": true
+      }
+    }
+  ]
+}

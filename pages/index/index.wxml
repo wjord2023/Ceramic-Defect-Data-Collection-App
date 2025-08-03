@@ -1,0 +1,68 @@
+<!--index.wxml-->
+<view class="container">
+  <view class="header">
+    <image class="logo" src="/images/ceramic-logo.png" mode="aspectFit"></image>
+    <text class="title">陶瓷缺陷数据收集系统</text>
+    <text class="subtitle">AI训练数据采集工具</text>
+  </view>
+
+  <view class="stats-section">
+    <view class="stats-card">
+      <text class="stats-number">{{totalCount}}</text>
+      <text class="stats-label">总样本数</text>
+    </view>
+    <view class="stats-card">
+      <text class="stats-number">{{todayCount}}</text>
+      <text class="stats-label">今日采集</text>
+    </view>
+    <view class="stats-card">
+      <text class="stats-number">{{cloudCount}}</text>
+      <text class="stats-label">已上传</text>
+    </view>
+  </view>
+
+  <view class="quick-actions">
+    <button class="action-btn primary" bindtap="goToCollect">
+      <image class="btn-icon" src="/images/camera-white.png"></image>
+      开始采集
+    </button>
+    <button class="action-btn secondary" bindtap="goToHistory">
+      <image class="btn-icon" src="/images/history-white.png"></image>
+      查看记录
+    </button>
+  </view>
+
+  <!-- 云端上传区域 -->
+  <view class="cloud-section">
+    <view class="cloud-header">
+      <text class="section-title">云端数据管理</text>
+      <text class="upload-status {{uploadStatus === 'success' ? 'success' : uploadStatus === 'error' ? 'error' : ''}}">
+        {{uploadStatusText}}
+      </text>
+    </view>
+    
+    <button class="upload-btn {{localCount > 0 ? 'active' : 'disabled'}}" 
+            bindtap="uploadAllData" 
+            disabled="{{localCount === 0 || uploading}}">
+      <image class="btn-icon" src="/images/cloud-upload.png" wx:if="{{!uploading}}"></image>
+      <view class="loading-spinner" wx:else></view>
+      {{uploading ? '上传中...' : '一键上传全部数据'}}
+      <text class="upload-count" wx:if="{{localCount > 0 && !uploading}}">({{localCount}}条)</text>
+    </button>
+  </view>
+
+  <view class="defect-types">
+    <text class="section-title">缺陷类型统计</text>
+    <view class="type-list">
+      <view class="type-item" wx:for="{{defectTypes}}" wx:key="id">
+        <view class="type-info">
+          <text class="type-name">{{item.name}}</text>
+          <text class="type-count">{{item.count}}张</text>
+        </view>
+        <view class="type-bar">
+          <view class="type-progress" style="width: {{item.percentage}}\%"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

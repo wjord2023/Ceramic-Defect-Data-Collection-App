@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "read": true,
+    "write": true
+  },
+  "folders": [
+    {
+      "name": "ceramic-images",
+      "permissions": {
+        "read": true,
+        "write": true
+      }
+    }
+  ]
+}

@@ -1,0 +1,159 @@
+<view class="container">
+  <!-- 搜索和筛选 -->
+  <view class="filter-section">
+    <view class="search-box">
+      <image class="search-icon" src="/images/search.png"></image>
+      <input class="search-input" 
+             placeholder="搜索备注内容..." 
+             value="{{searchKeyword}}" 
+             bindinput="onSearchInput"
+             bindconfirm="searchRecords">
+      </input>
+    </view>
+    
+    <view class="filter-tabs">
+      <view class="filter-tab {{filterType === 'all' ? 'active' : ''}}" 
+            bindtap="setFilter" 
+            data-type="all">
+        全部
+      </view>
+      <view class="filter-tab {{filterType === '裂纹' ? 'active' : ''}}" 
+            bindtap="setFilter" 
+            data-type="裂纹">
+        裂纹
+      </view>
+      <view class="filter-tab {{filterType === '气泡' ? 'active' : ''}}" 
+            bindtap="setFilter" 
+            data-type="气泡">
+        气泡
+      </view>
+      <view class="filter-tab {{filterType === '正常' ? 'active' : ''}}" 
+            bindtap="setFilter" 
+            data-type="正常">
+        正常
+      </view>
+    </view>
+  </view>
+
+  <!-- 统计信息 -->
+  <view class="stats-bar">
+    <text class="stats-text">共 {{filteredRecords.length}} 条记录</text>
+    <view class="sort-options">
+      <picker range="{{sortOptions}}" 
+              range-key="label" 
+              value="{{sortIndex}}" 
+              bindchange="onSortChange">
+        <view class="sort-btn">
+          <text>{{sortOptions[sortIndex].label}}</text>
+          <image class="sort-icon" src="/images/arrow-down.png"></image>
+        </view>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 记录列表 -->
+  <view class="records-list" wx:if="{{filteredRecords.length > 0}}">
+    <view class="record-item" 
+          wx:for="{{filteredRecords}}" 
+          wx:key="id" 
+          bindtap="viewRecord" 
+          data-record="{{item}}">
+      <view class="record-image">
+        <image src="{{item.imagePath}}" mode="aspectFill" class="thumbnail"></image>
+        <view class="defect-tag {{item.defectType === '正常' ? 'normal' : 'defect'}}">
+          {{item.defectType}}
+        </view>
+      </view>
+      
+      <view class="record-info">
+        <view class="record-header">
+          <text class="record-time">{{item.formatTime}}</text>
+          <view class="record-actions">
+            <image class="action-icon" 
+                   src="/images/export.png" 
+                   bindtap="exportRecord" 
+                   data-record="{{item}}"
+                   catchtap="">
+            </image>
+            <image class="action-icon delete" 
+                   src="/images/delete.png" 
+                   bindtap="deleteRecord" 
+                   data-id="{{item.id}}"
+                   catchtap="">
+            </image>
+          </view>
+        </view>
+        
+        <text class="record-note" wx:if="{{item.note}}">{{item.note}}</text>
+        <text class="no-note" wx:else>无备注</text>
+        
+        <view class="record-meta">
+          <text class="meta-item" wx:if="{{item.location}}">
+            <image class="meta-icon" src="/images/location.png"></image>
+            位置信息
+          </text>
+          <text class="meta-item">
+            <image class="meta-icon" src="/images/id.png"></image>
+            ID: {{item.id}}
+          </text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <view class="empty-state" wx:else>
+    <image class="empty-icon" src="/images/empty.png"></image>
+    <text class="empty-text">暂无记录</text>
+    <text class="empty-desc">开始采集陶瓷缺陷数据吧</text>
+    <button class="start-collect-btn" bindtap="goToCollect">开始采集</button>
+  </view>
+</view>
+
+<!-- 详情模态框 -->
+<view class="detail-modal {{showDetail ? 'show' : ''}}" bindtap="hideDetail">
+  <view class="modal-content" catchtap="" wx:if="{{selectedRecord}}">
+    <view class="modal-header">
+      <text class="modal-title">记录详情</text>
+      <image class="close-btn" src="/images/close.png" bindtap="hideDetail"></image>
+    </view>
+    
+    <view class="detail-image">
+      <image src="{{selectedRecord.imagePath}}" mode="aspectFit" class="full-image"></image>
+    </view>
+    
+    <view class="detail-info">
+      <view class="info-row">
+        <text class="info-label">缺陷类型:</text>
+        <text class="info-value defect-type">{{selectedRecord.defectType}}</text>
+      </view>
+      
+      <view class="info-row">
+        <text class="info-label">采集时间:</text>
+        <text class="info-value">{{selectedRecord.formatTime}}</text>
+      </view>
+      
+      <view class="info-row" wx:if="{{selectedRecord.note}}">
+        <text class="info-label">备注信息:</text>
+        <text class="info-value">{{selectedRecord.note}}</text>
+      </view>
+      
+      <view class="info-row" wx:if="{{selectedRecord.location}}">
+        <text class="info-label">位置信息:</text>
+        <text class="info-value">
+          纬度: {{selectedRecord.location.latitude}}, 
+          经度: {{selectedRecord.location.longitude}}
+        </text>
+      </view>
+    </view>
+    
+    <view class="modal-actions">
+      <button class="modal-btn secondary" bindtap="exportRecord" data-record="{{selectedRecord}}">
+        导出数据
+      </button>
+      <button class="modal-btn danger" bindtap="deleteRecord" data-id="{{selectedRecord.id}}">
+        删除记录
+      </button>
+    </view>
+  </view>
+</view>

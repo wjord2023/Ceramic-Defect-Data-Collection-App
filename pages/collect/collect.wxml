@@ -1,0 +1,55 @@
+<!--collect.wxml-->
+<view class="container">
+  <!-- 拍照区域 -->
+  <view class="camera-section">
+    <view class="image-preview" wx:if="{{imageUrl}}">
+      <image src="{{imageUrl}}" mode="aspectFit" class="preview-image"></image>
+      <view class="image-actions">
+        <button class="action-btn retake" bindtap="retakePhoto">重新拍摄</button>
+        <button class="action-btn delete" bindtap="deletePhoto">删除照片</button>
+      </view>
+    </view>
+    
+    <view class="camera-placeholder" wx:else>
+      <image class="camera-icon" src="/images/camera-gray.png"></image>
+      <text class="placeholder-text">点击拍摄陶瓷缺陷照片</text>
+      <button class="take-photo-btn" bindtap="takePhoto">
+        <image class="btn-icon" src="/images/camera-white.png"></image>
+        拍照
+      </button>
+    </view>
+  </view>
+
+  <!-- 缺陷类型选择 -->
+  <view class="defect-selection">
+    <text class="section-title">选择缺陷类型</text>
+    <view class="defect-grid">
+      <button class="defect-btn {{selectedDefect === item.name ? 'selected' : ''}}" 
+              wx:for="{{defectTypes}}" 
+              wx:key="id" 
+              bindtap="selectDefect" 
+              data-defect="{{item.name}}">
+        {{item.name}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 提交按钮 -->
+  <view class="submit-section">
+    <button class="submit-btn {{canSubmit ? 'active' : 'disabled'}}" 
+            bindtap="submitData" 
+            disabled="{{!canSubmit}}">
+      <image class="btn-icon" src="/images/save-white.png"></image>
+      保存数据
+    </button>
+  </view>
+</view>
+
+<!-- 成功提示 -->
+<view class="success-modal {{showSuccess ? 'show' : ''}}" bindtap="hideSuccess">
+  <view class="modal-content" catchtap="">
+    <image class="success-icon" src="/images/success.png"></image>
+    <text class="success-text">数据保存成功！</text>
+    <button class="continue-btn" bindtap="continueCollect">继续采集</button>
+  </view>
+</view>
