@@ -2,27 +2,57 @@
 Page({
   data: {
     imageUrl: '',
-    selectedDefect: '',
+    selectedDefects: [],
+    selectedSeverity: '', // 严重程度
     showSuccess: false,
+    canSubmit: false,
+    userInfo: null,
+    severityTypes: [
+      { id: 1, name: '正常', color: '#4CAF50' },
+      { id: 2, name: '可补瓷', color: '#FF9800' },
+      { id: 3, name: '需丢弃', color: '#f44336' }
+    ],
     defectTypes: [
-      { id: 1, name: '裂纹' },
-      { id: 2, name: '气泡' },
-      { id: 3, name: '变形' },
-      { id: 4, name: '划痕' },
-      { id: 5, name: '污渍' },
-      { id: 6, name: '缺釉' },
-      { id: 7, name: '正常' }
+      { id: 1, name: '裂纹', selected: false },
+      { id: 2, name: '气泡', selected: false },
+      { id: 3, name: '变形', selected: false },
+      { id: 4, name: '划痕', selected: false },
+      { id: 5, name: '污渍', selected: false },
+      { id: 6, name: '缺釉', selected: false }
     ]
   },
 
-  // 计算是否可以提交
-  get canSubmit() {
-    return this.data.imageUrl && this.data.selectedDefect
+  onLoad() {
+    // 获取用户信息
+    this.getUserInfo()
+    // 加载上次的严重程度
+    this.loadLastSeverity()
+    // 更新提交按钮状态
+    this.updateSubmitState()
   },
 
-  onLoad() {
-    // 页面加载时更新提交按钮状态
-    this.updateSubmitState()
+  // 获取用户信息
+  getUserInfo() {
+    // 从缓存获取用户信息
+    const userInfo = wx.getStorageSync('userInfo')
+    if (userInfo) {
+      this.setData({ userInfo })
+    } else {
+      // 如果没有登录信息，跳转回登录页
+      wx.redirectTo({
+        url: '/pages/login/login'
+      })
+    }
+  },
+
+  // 加载上次的严重程度
+  loadLastSeverity() {
+    const lastSeverity = wx.getStorageSync('lastSeverity')
+    if (lastSeverity) {
+      this.setData({
+        selectedSeverity: lastSeverity
+      })
+    }
   },
 
   // 拍照功能
@@ -37,9 +67,8 @@ Page({
         const tempFilePath = res.tempFiles[0].tempFilePath
         that.setData({
           imageUrl: tempFilePath
-        }, () => {
-          that.updateSubmitState()
         })
+        that.updateSubmitState()
       },
       fail(err) {
         console.error('拍照失败:', err)
@@ -65,29 +94,98 @@ Page({
         if (res.confirm) {
           this.setData({
             imageUrl: ''
-          }, () => {
-            this.updateSubmitState()
           })
+          this.updateSubmitState()
         }
       }
     })
   },
 
-  // 选择缺陷类型
-  selectDefect(e) {
-    const defectType = e.currentTarget.dataset.defect
+  // 选择严重程度
+  selectSeverity(e) {
+    const severity = e.currentTarget.dataset.severity
     this.setData({
-      selectedDefect: defectType
-    }, () => {
-      this.updateSubmitState()
+      selectedSeverity: severity
     })
+    
+    // 保存到本地，下次默认选中
+    wx.setStorageSync('lastSeverity', severity)
+    
+    // 如果选择了"正常"，清空缺陷类型选择
+    if (severity === '正常') {
+      const defectTypes = this.data.defectTypes.map(item => ({
+        ...item,
+        selected: false
+      }))
+      this.setData({
+        defectTypes: defectTypes,
+        selectedDefects: []
+      })
+    }
+    
+    this.updateSubmitState()
+  },
+
+  // 选择缺陷类型（支持多选）
+  selectDefect(e) {
+    // 如果严重程度是"正常"，不允许选择缺陷
+    if (this.data.selectedSeverity === '正常') {
+      wx.showToast({
+        title: '正常产品无需选择缺陷',
+        icon: 'none'
+      })
+      return
+    }
+    
+    // 如果没有选择严重程度，提示先选择
+    if (!this.data.selectedSeverity) {
+      wx.showToast({
+        title: '请先选择严重程度',
+        icon: 'none'
+      })
+      return
+    }
+    
+    const defectType = e.currentTarget.dataset.defect
+    
+    // 更新 defectTypes 数组中的 selected 状态
+    const defectTypes = this.data.defectTypes.map(item => {
+      if (item.name === defectType) {
+        return { ...item, selected: !item.selected }
+      }
+      return item
+    })
+    
+    // 更新 selectedDefects 数组
+    const selectedDefects = defectTypes
+      .filter(item => item.selected)
+      .map(item => item.name)
+    
+    // 更新数据
+    this.setData({
+      defectTypes: defectTypes,
+      selectedDefects: selectedDefects
+    })
+    
+    this.updateSubmitState()
   },
 
   // 更新提交按钮状态
   updateSubmitState() {
-    const canSubmit = this.data.imageUrl && this.data.selectedDefect
+    let canSubmit = false
+    
+    if (this.data.imageUrl && this.data.selectedSeverity) {
+      if (this.data.selectedSeverity === '正常') {
+        // 正常产品不需要选择缺陷类型
+        canSubmit = true
+      } else {
+        // 其他严重程度需要至少选择一个缺陷类型
+        canSubmit = this.data.selectedDefects.length > 0
+      }
+    }
+    
     this.setData({
-      canSubmit
+      canSubmit: canSubmit
     })
   },
 
@@ -109,14 +207,16 @@ Page({
       const record = {
         id: Date.now().toString(),
         imagePath: savedImagePath,
-        defectType: this.data.selectedDefect,
+        severity: this.data.selectedSeverity, // 严重程度
+        defectType: this.data.selectedDefects, // 缺陷类型数组
         createTime: new Date().toISOString(),
-        location: await this.getCurrentLocation()
+        collector: this.data.userInfo.nickName, // 收集者
+        collectorAvatar: this.data.userInfo.avatarUrl // 收集者头像
       }
 
       // 保存到本地存储
       const records = wx.getStorageSync('ceramic_records') || []
-      records.unshift(record) // 添加到数组开头
+      records.unshift(record)
       wx.setStorageSync('ceramic_records', records)
 
       wx.hideLoading()
@@ -145,35 +245,16 @@ Page({
 
   // 保存图片到本地
   saveImageToLocal(tempFilePath) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const fileName = `ceramic_${Date.now()}.jpg`
       wx.saveFile({
         tempFilePath,
         success(res) {
           resolve(res.savedFilePath)
         },
-        fail(err) {
-          // 如果保存失败，直接使用临时路径
-          console.warn('保存图片失败，使用临时路径:', err)
-          resolve(tempFilePath)
-        }
-      })
-    })
-  },
-
-  // 获取当前位置（可选）
-  getCurrentLocation() {
-    return new Promise((resolve) => {
-      wx.getLocation({
-        type: 'gcj02',
-        success(res) {
-          resolve({
-            latitude: res.latitude,
-            longitude: res.longitude
-          })
-        },
         fail() {
-          resolve(null)
+          // 如果保存失败，直接使用临时路径
+          resolve(tempFilePath)
         }
       })
     })
@@ -181,13 +262,23 @@ Page({
 
   // 继续采集
   continueCollect() {
+    // 重置所有选择状态，但保留严重程度
+    const defectTypes = this.data.defectTypes.map(item => ({
+      ...item,
+      selected: false
+    }))
+    
+    // 如果当前严重程度是"正常"，也要重置
+    const shouldResetSeverity = this.data.selectedSeverity === '正常'
+    
     this.setData({
       imageUrl: '',
-      selectedDefect: '',
-      showSuccess: false
-    }, () => {
-      this.updateSubmitState()
+      selectedDefects: [],
+      showSuccess: false,
+      defectTypes: defectTypes,
+      selectedSeverity: shouldResetSeverity ? '' : this.data.selectedSeverity
     })
+    this.updateSubmitState()
   },
 
   // 隐藏成功提示

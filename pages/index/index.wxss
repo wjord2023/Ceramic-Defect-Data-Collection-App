@@ -12,6 +12,30 @@
   border-radius: 20rpx;
   margin-bottom: 30rpx;
   color: white;
+  position: relative;
+}
+
+.user-info {
+  position: absolute;
+  top: 20rpx;
+  right: 20rpx;
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+  background: rgba(255,255,255,0.2);
+  padding: 10rpx 20rpx;
+  border-radius: 25rpx;
+}
+
+.user-avatar-small {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+}
+
+.user-name-small {
+  font-size: 24rpx;
+  color: white;
 }
 
 .logo {
@@ -112,24 +136,6 @@
   margin-bottom: 20rpx;
 }
 
-.upload-status {
-  font-size: 24rpx;
-  padding: 6rpx 12rpx;
-  border-radius: 12rpx;
-  background: #f0f0f0;
-  color: #666;
-}
-
-.upload-status.success {
-  background: rgba(76, 175, 80, 0.1);
-  color: #4CAF50;
-}
-
-.upload-status.error {
-  background: rgba(244, 67, 54, 0.1);
-  color: #f44336;
-}
-
 .upload-btn {
   width: 100%;
   padding: 25rpx;
@@ -142,6 +148,7 @@
   justify-content: center;
   gap: 15rpx;
   position: relative;
+  transition: all 0.3s ease;
 }
 
 .upload-btn.active {
@@ -149,9 +156,9 @@
   color: white;
 }
 
-.upload-btn.disabled {
-  background: #e0e0e0;
-  color: #999;
+.upload-btn.synced {
+  background: #f0f0f0;
+  color: #666;
 }
 
 .upload-count {
@@ -190,6 +197,10 @@
 
 .type-item {
   margin-bottom: 30rpx;
+}
+
+.type-item:last-child {
+  margin-bottom: 0;
 }
 
 .type-info {

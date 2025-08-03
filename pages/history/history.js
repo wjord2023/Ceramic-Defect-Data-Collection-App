@@ -3,16 +3,30 @@ Page({
   data: {
     records: [],
     filteredRecords: [],
-    searchKeyword: '',
     filterType: 'all',
+    filterOptions: [
+      { label: '全部类型', value: 'all' },
+      { label: '裂纹', value: '裂纹' },
+      { label: '气泡', value: '气泡' },
+      { label: '变形', value: '变形' },
+      { label: '划痕', value: '划痕' },
+      { label: '污渍', value: '污渍' },
+      { label: '缺釉', value: '缺釉' }
+    ],
+    filterIndex: 0,
     sortIndex: 0,
     sortOptions: [
       { label: '时间降序', value: 'time_desc' },
       { label: '时间升序', value: 'time_asc' },
-      { label: '缺陷类型', value: 'defect_type' }
+      { label: '严重程度', value: 'severity' }
     ],
     showDetail: false,
-    selectedRecord: null
+    selectedRecord: null,
+    severityColors: {
+      '正常': '#4CAF50',
+      '可补瓷': '#FF9800',
+      '需丢弃': '#f44336'
+    }
   },
 
   onLoad() {
@@ -28,11 +42,26 @@ Page({
     try {
       const records = wx.getStorageSync('ceramic_records') || []
       
-      // 格式化时间显示
-      const formattedRecords = records.map(record => ({
-        ...record,
-        formatTime: this.formatTime(record.createTime)
-      }))
+      // 格式化数据
+      const formattedRecords = records.map(record => {
+        // 处理缺陷类型显示
+        let defectTypeDisplay = ''
+        if (Array.isArray(record.defectType)) {
+          defectTypeDisplay = record.defectType.join('、')
+        } else if (record.defectType) {
+          defectTypeDisplay = record.defectType
+        }
+        
+        // 获取严重程度颜色
+        const severityColor = this.data.severityColors[record.severity] || '#999'
+        
+        return {
+          ...record,
+          formatTime: this.formatTime(record.createTime),
+          defectTypeDisplay: defectTypeDisplay,
+          severityColor: severityColor
+        }
+      })
 
       this.setData({
         records: formattedRecords
@@ -78,23 +107,14 @@ Page({
     return `${month}月${day}日 ${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`
   },
 
-  // 搜索输入
-  onSearchInput(e) {
+  // 缺陷类型筛选改变
+  onFilterChange(e) {
+    const index = e.detail.value
+    const filterType = this.data.filterOptions[index].value
+    
     this.setData({
-      searchKeyword: e.detail.value
-    })
-  },
-
-  // 执行搜索
-  searchRecords() {
-    this.applyFilters()
-  },
-
-  // 设置筛选类型
-  setFilter(e) {
-    const filterType = e.currentTarget.dataset.type
-    this.setData({
-      filterType
+      filterIndex: index,
+      filterType: filterType
     }, () => {
       this.applyFilters()
     })
@@ -113,19 +133,15 @@ Page({
   applyFilters() {
     let filtered = [...this.data.records]
     
-    // 应用搜索筛选
-    if (this.data.searchKeyword) {
-      const keyword = this.data.searchKeyword.toLowerCase()
-      filtered = filtered.filter(record => 
-        record.defectType.toLowerCase().includes(keyword)
-      )
-    }
-    
     // 应用类型筛选
     if (this.data.filterType !== 'all') {
-      filtered = filtered.filter(record => 
-        record.defectType === this.data.filterType
-      )
+      filtered = filtered.filter(record => {
+        // 支持多选的缺陷类型
+        if (Array.isArray(record.defectType)) {
+          return record.defectType.includes(this.data.filterType)
+        }
+        return record.defectType === this.data.filterType
+      })
     }
     
     // 应用排序
@@ -137,8 +153,14 @@ Page({
       case 'time_asc':
         filtered.sort((a, b) => new Date(a.createTime) - new Date(b.createTime))
         break
-      case 'defect_type':
-        filtered.sort((a, b) => a.defectType.localeCompare(b.defectType))
+      case 'severity':
+        // 按严重程度排序：需丢弃 > 可补瓷 > 正常
+        const severityOrder = { '需丢弃': 3, '可补瓷': 2, '正常': 1 }
+        filtered.sort((a, b) => {
+          const aOrder = severityOrder[a.severity] || 0
+          const bOrder = severityOrder[b.severity] || 0
+          return bOrder - aOrder
+        })
         break
     }
     

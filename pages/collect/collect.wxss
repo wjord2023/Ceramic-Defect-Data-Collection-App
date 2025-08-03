@@ -83,6 +83,38 @@
   color: white;
 }
 
+/* 严重程度选择 */
+.severity-selection {
+  background: white;
+  border-radius: 15rpx;
+  padding: 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+}
+
+.severity-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15rpx;
+}
+
+.severity-btn {
+  padding: 25rpx 20rpx;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  font-weight: 500;
+  border: 2rpx solid #e0e0e0;
+  background: #f8f9fa;
+  color: #333;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.severity-btn.selected {
+  transform: scale(1.02);
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.2);
+}
+
 /* 缺陷类型选择 */
 .defect-selection {
   background: white;
@@ -116,6 +148,10 @@
   color: #333;
   transition: all 0.3s ease;
   text-align: center;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .defect-btn.selected {

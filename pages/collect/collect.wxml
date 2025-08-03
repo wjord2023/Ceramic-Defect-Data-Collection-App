@@ -20,17 +20,32 @@
     </view>
   </view>
 
+  <!-- 严重程度选择 -->
+  <view class="severity-selection">
+    <text class="section-title">选择严重程度</text>
+    <view class="severity-grid">
+      <view class="severity-btn {{selectedSeverity === item.name ? 'selected' : ''}}" 
+            wx:for="{{severityTypes}}" 
+            wx:key="id"
+            style="{{selectedSeverity === item.name ? 'background:' + item.color + '; color: white; border-color:' + item.color : ''}}"
+            bindtap="selectSeverity" 
+            data-severity="{{item.name}}">
+        {{item.name}}
+      </view>
+    </view>
+  </view>
+
   <!-- 缺陷类型选择 -->
-  <view class="defect-selection">
-    <text class="section-title">选择缺陷类型</text>
+  <view class="defect-selection" wx:if="{{selectedSeverity && selectedSeverity !== '正常'}}">
+    <text class="section-title">选择缺陷类型（可多选）</text>
     <view class="defect-grid">
-      <button class="defect-btn {{selectedDefect === item.name ? 'selected' : ''}}" 
-              wx:for="{{defectTypes}}" 
-              wx:key="id" 
+      <block wx:for="{{defectTypes}}" wx:key="id">
+        <view class="defect-btn {{item.selected ? 'selected' : ''}}" 
               bindtap="selectDefect" 
               data-defect="{{item.name}}">
-        {{item.name}}
-      </button>
+          {{item.name}}
+        </view>
+      </block>
     </view>
   </view>
 

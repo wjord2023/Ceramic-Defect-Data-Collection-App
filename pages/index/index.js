@@ -8,8 +8,7 @@ Page({
     cloudCount: 0,
     localCount: 0,
     uploading: false,
-    uploadStatus: '',
-    uploadStatusText: '待上传',
+    userInfo: null,
     defectTypes: [
       { id: 1, name: '裂纹', count: 0, percentage: 0 },
       { id: 2, name: '气泡', count: 0, percentage: 0 },
@@ -22,6 +21,17 @@ Page({
   },
 
   onLoad() {
+    // 检查登录状态
+    const userInfo = wx.getStorageSync('userInfo')
+    if (!userInfo) {
+      // 未登录，跳转到登录页
+      wx.redirectTo({
+        url: '/pages/login/login'
+      })
+      return
+    }
+    
+    this.setData({ userInfo })
     this.initCloud()
     this.loadStatistics()
   },
@@ -75,28 +85,54 @@ Page({
 
       // 统计各类型数量
       const typeStats = {}
+      const severityStats = {
+        '正常': 0,
+        '可补瓷': 0,
+        '需丢弃': 0
+      }
+      
       records.forEach(record => {
-        if (typeStats[record.defectType]) {
-          typeStats[record.defectType]++
-        } else {
-          typeStats[record.defectType] = 1
+        // 统计严重程度
+        if (record.severity && severityStats.hasOwnProperty(record.severity)) {
+          severityStats[record.severity]++
+        }
+        
+        // 统计缺陷类型
+        if (Array.isArray(record.defectType)) {
+          record.defectType.forEach(type => {
+            typeStats[type] = (typeStats[type] || 0) + 1
+          })
+        } else if (record.defectType) {
+          // 兼容旧数据
+          const type = record.defectType
+          typeStats[type] = (typeStats[type] || 0) + 1
         }
       })
 
-      // 更新缺陷类型统计
+      // 更新缺陷类型统计（不包括"正常"）
       const defectTypes = this.data.defectTypes.map(type => {
-        const count = typeStats[type.name] || 0
-        const percentage = records.length > 0 ? (count / records.length * 100) : 0
-        return {
-          ...type,
-          count,
-          percentage: Math.round(percentage)
+        if (type.name === '正常') {
+          // 正常类型从严重程度统计中获取
+          const count = severityStats['正常']
+          const percentage = records.length > 0 ? (count / records.length * 100) : 0
+          return {
+            ...type,
+            count,
+            percentage: Math.round(percentage)
+          }
+        } else {
+          const count = typeStats[type.name] || 0
+          const percentage = records.length > 0 ? (count / records.length * 100) : 0
+          return {
+            ...type,
+            count,
+            percentage: Math.round(percentage)
+          }
         }
       })
 
       this.setData({
-        defectTypes,
-        uploadStatusText: localRecords.length > 0 ? `${localRecords.length}条待上传` : '数据已同步'
+        defectTypes
       })
 
     } catch (error) {
@@ -111,9 +147,7 @@ Page({
     }
 
     this.setData({
-      uploading: true,
-      uploadStatus: '',
-      uploadStatusText: '准备上传...'
+      uploading: true
     })
 
     try {
@@ -125,9 +159,7 @@ Page({
       
       if (localRecords.length === 0) {
         this.setData({
-          uploading: false,
-          uploadStatus: 'success',
-          uploadStatusText: '数据已同步'
+          uploading: false
         })
         return
       }
@@ -138,10 +170,6 @@ Page({
       // 批量上传数据
       for (let i = 0; i < localRecords.length; i++) {
         const record = localRecords[i]
-        
-        this.setData({
-          uploadStatusText: `上传中... ${i + 1}/${localRecords.length}`
-        })
 
         try {
           // 上传图片到云存储
@@ -158,11 +186,13 @@ Page({
           // 上传记录到云数据库
           const dbData = {
             recordId: record.id,
+            severity: record.severity || '未分类',
             defectType: record.defectType,
             imagePath: cloudImageUrl,
             createTime: record.createTime,
-            location: record.location || null,
-            uploadTime: new Date().toISOString()
+            uploadTime: new Date().toISOString(),
+            collector: record.collector || '未知',
+            collectorAvatar: record.collectorAvatar || ''
           }
 
           await wx.cloud.database().collection('ceramic_records').add({
@@ -184,22 +214,14 @@ Page({
 
       // 更新状态
       if (failCount === 0) {
-        this.setData({
-          uploadStatus: 'success',
-          uploadStatusText: '上传成功！'
-        })
         wx.showToast({
           title: `成功上传${successCount}条数据`,
           icon: 'success'
         })
       } else {
-        this.setData({
-          uploadStatus: 'error',
-          uploadStatusText: `成功${successCount}条，失败${failCount}条`
-        })
         wx.showToast({
-          title: `部分上传失败`,
-          icon: 'error'
+          title: `成功${successCount}条，失败${failCount}条`,
+          icon: 'none'
         })
       }
 
@@ -208,10 +230,6 @@ Page({
 
     } catch (error) {
       console.error('批量上传失败:', error)
-      this.setData({
-        uploadStatus: 'error',
-        uploadStatusText: '上传失败'
-      })
       wx.showToast({
         title: '上传失败',
         icon: 'error'

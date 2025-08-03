@@ -1,36 +1,31 @@
 <view class="container">
-  <!-- 搜索和筛选 -->
+  <!-- 筛选区域 -->
   <view class="filter-section">
-    <view class="search-box">
-      <image class="search-icon" src="/images/search.png"></image>
-      <input class="search-input" 
-             placeholder="搜索备注内容..." 
-             value="{{searchKeyword}}" 
-             bindinput="onSearchInput"
-             bindconfirm="searchRecords">
-      </input>
-    </view>
-    
-    <view class="filter-tabs">
-      <view class="filter-tab {{filterType === 'all' ? 'active' : ''}}" 
-            bindtap="setFilter" 
-            data-type="all">
-        全部
+    <view class="filter-row">
+      <view class="filter-item">
+        <text class="filter-label">缺陷类型：</text>
+        <picker range="{{filterOptions}}" 
+                range-key="label" 
+                value="{{filterIndex}}" 
+                bindchange="onFilterChange">
+          <view class="picker-btn">
+            <text>{{filterOptions[filterIndex].label}}</text>
+            <image class="arrow-icon" src="/images/arrow-down.png"></image>
+          </view>
+        </picker>
       </view>
-      <view class="filter-tab {{filterType === '裂纹' ? 'active' : ''}}" 
-            bindtap="setFilter" 
-            data-type="裂纹">
-        裂纹
-      </view>
-      <view class="filter-tab {{filterType === '气泡' ? 'active' : ''}}" 
-            bindtap="setFilter" 
-            data-type="气泡">
-        气泡
-      </view>
-      <view class="filter-tab {{filterType === '正常' ? 'active' : ''}}" 
-            bindtap="setFilter" 
-            data-type="正常">
-        正常
+      
+      <view class="filter-item">
+        <text class="filter-label">排序方式：</text>
+        <picker range="{{sortOptions}}" 
+                range-key="label" 
+                value="{{sortIndex}}" 
+                bindchange="onSortChange">
+          <view class="picker-btn">
+            <text>{{sortOptions[sortIndex].label}}</text>
+            <image class="arrow-icon" src="/images/arrow-down.png"></image>
+          </view>
+        </picker>
       </view>
     </view>
   </view>
@@ -38,17 +33,6 @@
   <!-- 统计信息 -->
   <view class="stats-bar">
     <text class="stats-text">共 {{filteredRecords.length}} 条记录</text>
-    <view class="sort-options">
-      <picker range="{{sortOptions}}" 
-              range-key="label" 
-              value="{{sortIndex}}" 
-              bindchange="onSortChange">
-        <view class="sort-btn">
-          <text>{{sortOptions[sortIndex].label}}</text>
-          <image class="sort-icon" src="/images/arrow-down.png"></image>
-        </view>
-      </picker>
-    </view>
   </view>
 
   <!-- 记录列表 -->
@@ -60,37 +44,31 @@
           data-record="{{item}}">
       <view class="record-image">
         <image src="{{item.imagePath}}" mode="aspectFill" class="thumbnail"></image>
-        <view class="defect-tag {{item.defectType === '正常' ? 'normal' : 'defect'}}">
-          {{item.defectType}}
+        <view class="severity-tag" style="background: {{item.severityColor}}">
+          {{item.severity || '未分类'}}
         </view>
       </view>
       
       <view class="record-info">
         <view class="record-header">
           <text class="record-time">{{item.formatTime}}</text>
-          <view class="record-actions">
-            <image class="action-icon" 
-                   src="/images/export.png" 
-                   bindtap="exportRecord" 
-                   data-record="{{item}}"
-                   catchtap="">
-            </image>
-            <image class="action-icon delete" 
-                   src="/images/delete.png" 
-                   bindtap="deleteRecord" 
-                   data-id="{{item.id}}"
-                   catchtap="">
-            </image>
-          </view>
+          <image class="action-icon delete" 
+                 src="/images/delete.png" 
+                 bindtap="deleteRecord" 
+                 data-id="{{item.id}}"
+                 catchtap="">
+          </image>
         </view>
         
-        <text class="record-note" wx:if="{{item.note}}">{{item.note}}</text>
-        <text class="no-note" wx:else>无备注</text>
+        <view class="defect-types" wx:if="{{item.defectTypeDisplay && item.defectTypeDisplay !== ''}}">
+          <text class="defect-label">缺陷：</text>
+          <text class="defect-text">{{item.defectTypeDisplay}}</text>
+        </view>
         
         <view class="record-meta">
-          <text class="meta-item" wx:if="{{item.location}}">
-            <image class="meta-icon" src="/images/location.png"></image>
-            位置信息
+          <text class="meta-item" wx:if="{{item.collector}}">
+            <image class="meta-icon" src="/images/user.png"></image>
+            {{item.collector}}
           </text>
           <text class="meta-item">
             <image class="meta-icon" src="/images/id.png"></image>
@@ -124,8 +102,15 @@
     
     <view class="detail-info">
       <view class="info-row">
+        <text class="info-label">严重程度:</text>
+        <text class="info-value" style="color: {{selectedRecord.severityColor}}; font-weight: bold;">
+          {{selectedRecord.severity || '未分类'}}
+        </text>
+      </view>
+      
+      <view class="info-row" wx:if="{{selectedRecord.defectTypeDisplay && selectedRecord.defectTypeDisplay !== ''}}">
         <text class="info-label">缺陷类型:</text>
-        <text class="info-value defect-type">{{selectedRecord.defectType}}</text>
+        <text class="info-value">{{selectedRecord.defectTypeDisplay}}</text>
       </view>
       
       <view class="info-row">
@@ -133,24 +118,13 @@
         <text class="info-value">{{selectedRecord.formatTime}}</text>
       </view>
       
-      <view class="info-row" wx:if="{{selectedRecord.note}}">
-        <text class="info-label">备注信息:</text>
-        <text class="info-value">{{selectedRecord.note}}</text>
-      </view>
-      
-      <view class="info-row" wx:if="{{selectedRecord.location}}">
-        <text class="info-label">位置信息:</text>
-        <text class="info-value">
-          纬度: {{selectedRecord.location.latitude}}, 
-          经度: {{selectedRecord.location.longitude}}
-        </text>
+      <view class="info-row" wx:if="{{selectedRecord.collector}}">
+        <text class="info-label">采集人员:</text>
+        <text class="info-value">{{selectedRecord.collector}}</text>
       </view>
     </view>
     
     <view class="modal-actions">
-      <button class="modal-btn secondary" bindtap="exportRecord" data-record="{{selectedRecord}}">
-        导出数据
-      </button>
       <button class="modal-btn danger" bindtap="deleteRecord" data-id="{{selectedRecord.id}}">
         删除记录
       </button>
