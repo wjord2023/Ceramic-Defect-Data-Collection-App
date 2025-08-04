@@ -4,10 +4,11 @@
     <image class="logo" src="/images/ceramic-logo.png" mode="aspectFit"></image>
     <text class="title">陶瓷缺陷数据收集系统</text>
     <text class="subtitle">AI训练数据采集工具</text>
-    <!-- 显示当前用户 -->
-    <view class="user-info" wx:if="{{userInfo}}">
-      <image class="user-avatar-small" src="{{userInfo.avatarUrl}}"></image>
-      <text class="user-name-small">{{userInfo.nickName}}</text>
+    <!-- 显示当前收集者 -->
+    <view class="collector-info" bindtap="showNameSetting">
+      <image class="collector-icon" src="/images/user.png"></image>
+      <text class="collector-name">{{collectorName}}</text>
+      <image class="edit-icon" src="/images/edit.png"></image>
     </view>
   </view>
 
@@ -68,6 +69,35 @@
           <view class="type-progress" style="width: {{item.percentage}}%"></view>
         </view>
       </view>
+    </view>
+  </view>
+</view>
+
+<!-- 姓名设置弹窗 -->
+<view class="name-modal {{showNameModal ? 'show' : ''}}" bindtap="hideNameModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">设置收集者姓名</text>
+      <image class="close-btn" src="/images/close.png" bindtap="hideNameModal"></image>
+    </view>
+    
+    <view class="modal-body">
+      <view class="input-group">
+        <text class="input-label">姓名</text>
+        <input class="name-input" 
+               placeholder="请输入您的姓名" 
+               value="{{tempName}}" 
+               bindinput="onNameInput" 
+               maxlength="10"
+               cursor-spacing="100"
+               confirm-type="done"
+               placeholder-style="color: #999; font-size: 36rpx; line-height: 1.6;"/>
+      </view>
+    </view>
+    
+    <view class="modal-actions">
+      <button class="modal-btn cancel" bindtap="hideNameModal">取消</button>
+      <button class="modal-btn confirm" bindtap="saveName">保存</button>
     </view>
   </view>
 </view>

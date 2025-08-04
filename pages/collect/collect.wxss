@@ -166,6 +166,35 @@
   transform: scale(0.98);
 }
 
+/* 收集者信息显示 */
+.collector-display {
+  background: white;
+  border-radius: 15rpx;
+  padding: 25rpx 30rpx;
+  margin-bottom: 30rpx;
+  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.collector-label {
+  font-size: 26rpx;
+  color: #666;
+}
+
+.collector-name {
+  font-size: 26rpx;
+  color: #2196F3;
+  font-weight: bold;
+}
+
+.collector-tip {
+  font-size: 22rpx;
+  color: #999;
+  margin-left: auto;
+}
+
 /* 提交按钮 */
 .submit-section {
   margin-bottom: 40rpx;
@@ -241,7 +270,23 @@
   font-size: 32rpx;
   font-weight: bold;
   color: #4CAF50;
+  margin-bottom: 30rpx;
+}
+
+.success-info {
   margin-bottom: 40rpx;
+}
+
+.success-detail {
+  display: block;
+  font-size: 24rpx;
+  color: #666;
+  margin-bottom: 10rpx;
+  line-height: 1.5;
+}
+
+.success-detail:last-child {
+  margin-bottom: 0;
 }
 
 .continue-btn {

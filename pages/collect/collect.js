@@ -6,7 +6,7 @@ Page({
     selectedSeverity: '', // 严重程度
     showSuccess: false,
     canSubmit: false,
-    userInfo: null,
+    collectorName: '',
     severityTypes: [
       { id: 1, name: '正常', color: '#4CAF50' },
       { id: 2, name: '可补瓷', color: '#FF9800' },
@@ -23,26 +23,23 @@ Page({
   },
 
   onLoad() {
-    // 获取用户信息
-    this.getUserInfo()
+    // 获取收集者姓名
+    this.getCollectorName()
     // 加载上次的严重程度
     this.loadLastSeverity()
     // 更新提交按钮状态
     this.updateSubmitState()
   },
 
-  // 获取用户信息
-  getUserInfo() {
-    // 从缓存获取用户信息
-    const userInfo = wx.getStorageSync('userInfo')
-    if (userInfo) {
-      this.setData({ userInfo })
-    } else {
-      // 如果没有登录信息，跳转回登录页
-      wx.redirectTo({
-        url: '/pages/login/login'
-      })
-    }
+  onShow() {
+    // 每次显示页面时重新获取收集者姓名，以防在其他页面修改了
+    this.getCollectorName()
+  },
+
+  // 获取收集者姓名
+  getCollectorName() {
+    const collectorName = wx.getStorageSync('collector_name') || `用户${Date.now().toString().slice(-6)}`
+    this.setData({ collectorName })
   },
 
   // 加载上次的严重程度
@@ -210,8 +207,7 @@ Page({
         severity: this.data.selectedSeverity, // 严重程度
         defectType: this.data.selectedDefects, // 缺陷类型数组
         createTime: new Date().toISOString(),
-        collector: this.data.userInfo.nickName, // 收集者
-        collectorAvatar: this.data.userInfo.avatarUrl // 收集者头像
+        collector: this.data.collectorName // 收集者姓名
       }
 
       // 保存到本地存储

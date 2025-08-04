@@ -15,27 +15,43 @@
   position: relative;
 }
 
-.user-info {
+.collector-info {
   position: absolute;
   top: 20rpx;
   right: 20rpx;
   display: flex;
   align-items: center;
-  gap: 10rpx;
+  gap: 8rpx;
   background: rgba(255,255,255,0.2);
   padding: 10rpx 20rpx;
   border-radius: 25rpx;
+  backdrop-filter: blur(10rpx);
+  transition: all 0.3s ease;
 }
 
-.user-avatar-small {
-  width: 40rpx;
-  height: 40rpx;
-  border-radius: 50%;
+.collector-info:active {
+  transform: scale(0.95);
+  background: rgba(255,255,255,0.3);
 }
 
-.user-name-small {
+.collector-icon {
+  width: 32rpx;
+  height: 32rpx;
+}
+
+.collector-name {
   font-size: 24rpx;
   color: white;
+  max-width: 120rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.edit-icon {
+  width: 24rpx;
+  height: 24rpx;
+  opacity: 0.8;
 }
 
 .logo {
@@ -231,4 +247,140 @@
   height: 100%;
   background: linear-gradient(90deg, #2196F3, #21CBF3);
   transition: width 0.3s ease;
+}
+
+/* 姓名设置弹窗 */
+.name-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  z-index: 1000;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+}
+
+.name-modal.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 20rpx;
+  width: 95%;
+  max-width: 650rpx;
+  overflow: hidden;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 40rpx 40rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  background: #f8f9fa;
+}
+
+.modal-title {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #333;
+}
+
+.close-btn {
+  width: 44rpx;
+  height: 44rpx;
+  opacity: 0.6;
+}
+
+.modal-body {
+  padding: 60rpx 40rpx;
+}
+
+.input-group {
+  margin-bottom: 30rpx;
+}
+
+.input-label {
+  display: block;
+  font-size: 26rpx;
+  color: #333;
+  margin-bottom: 15rpx;
+  font-weight: 500;
+}
+
+.name-input {
+  width: 100%;
+  padding: 40rpx;
+  border: 2rpx solid #e0e0e0;
+  border-radius: 10rpx;
+  font-size: 38rpx;
+  background: white;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+.name-input:focus {
+  border-color: #2196F3;
+  background: white;
+}
+
+.input-tips {
+  margin-top: 20rpx;
+  padding: 20rpx;
+  background: #f8f9fa;
+  border-radius: 8rpx;
+  border-left: 4rpx solid #2196F3;
+}
+
+.tip-text {
+  display: block;
+  font-size: 22rpx;
+  color: #666;
+  line-height: 1.6;
+  margin-bottom: 8rpx;
+}
+
+.tip-text:last-child {
+  margin-bottom: 0;
+}
+
+.modal-actions {
+  display: flex;
+  border-top: 1rpx solid #f0f0f0;
+}
+
+.modal-btn {
+  flex: 1;
+  padding: 40rpx;
+  border: none;
+  font-size: 32rpx;
+  font-weight: bold;
+  background: white;
+  transition: background-color 0.3s ease;
+}
+
+.modal-btn.cancel {
+  color: #666;
+  border-right: 1rpx solid #f0f0f0;
+}
+
+.modal-btn.cancel:active {
+  background-color: #f5f5f5;
+}
+
+.modal-btn.confirm {
+  color: #2196F3;
+}
+
+.modal-btn.confirm:active {
+  background-color: rgba(33, 150, 243, 0.1);
 }

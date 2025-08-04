@@ -11,6 +11,9 @@ App({
     
     // 获取系统信息
     this.getSystemInfo()
+    
+    // 初始化收集者信息
+    this.initCollectorInfo()
   },
 
   onShow() {
@@ -47,6 +50,17 @@ App({
       
     } catch (error) {
       console.error('初始化存储失败:', error)
+    }
+  },
+
+  // 初始化收集者信息
+  initCollectorInfo() {
+    const collectorName = wx.getStorageSync('collector_name')
+    if (!collectorName) {
+      // 首次使用，生成默认名称或提示用户设置
+      const defaultName = `用户${Date.now().toString().slice(-6)}`
+      wx.setStorageSync('collector_name', defaultName)
+      console.log('设置默认收集者名称:', defaultName)
     }
   },
 
@@ -94,8 +108,7 @@ App({
 
   // 全局数据
   globalData: {
-    systemInfo: null,
-    userInfo: null
+    systemInfo: null
   },
 
   // 工具方法

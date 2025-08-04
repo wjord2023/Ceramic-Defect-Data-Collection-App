@@ -8,7 +8,9 @@ Page({
     cloudCount: 0,
     localCount: 0,
     uploading: false,
-    userInfo: null,
+    collectorName: '',
+    showNameModal: false,
+    tempName: '',
     defectTypes: [
       { id: 1, name: '裂纹', count: 0, percentage: 0 },
       { id: 2, name: '气泡', count: 0, percentage: 0 },
@@ -21,23 +23,130 @@ Page({
   },
 
   onLoad() {
-    // 检查登录状态
-    const userInfo = wx.getStorageSync('userInfo')
-    if (!userInfo) {
-      // 未登录，跳转到登录页
-      wx.redirectTo({
-        url: '/pages/login/login'
-      })
-      return
-    }
-    
-    this.setData({ userInfo })
+    this.initCollectorName()
     this.initCloud()
     this.loadStatistics()
   },
 
   onShow() {
     this.loadStatistics()
+  },
+
+  // 初始化收集者姓名
+  initCollectorName() {
+    const collectorName = wx.getStorageSync('collector_name') || `用户${Date.now().toString().slice(-6)}`
+    this.setData({ collectorName })
+  },
+
+  // 显示姓名设置弹窗
+  showNameSetting() {
+    this.setData({
+      showNameModal: true,
+      tempName: this.data.collectorName
+    })
+  },
+
+  // 隐藏姓名设置弹窗
+  hideNameModal() {
+    this.setData({
+      showNameModal: false,
+      tempName: ''
+    })
+  },
+
+  // 阻止事件冒泡
+  stopPropagation(e) {
+    // 阻止事件冒泡，防止点击模态框内容时关闭弹窗
+    e.stopPropagation && e.stopPropagation()
+  },
+
+  // 姓名输入
+  onNameInput(e) {
+    this.setData({
+      tempName: e.detail.value
+    })
+  },
+
+  // 保存姓名
+  saveName() {
+    const name = this.data.tempName.trim()
+    if (!name) {
+      wx.showToast({
+        title: '请输入姓名',
+        icon: 'none'
+      })
+      return
+    }
+
+    if (name.length > 10) {
+      wx.showToast({
+        title: '姓名不能超过10个字符',
+        icon: 'none'
+      })
+      return
+    }
+
+    try {
+      wx.setStorageSync('collector_name', name)
+      this.setData({
+        collectorName: name,
+        showNameModal: false,
+        tempName: ''
+      })
+
+      wx.showToast({
+        title: '设置成功',
+        icon: 'success',
+        duration: 1500
+      })
+    } catch (error) {
+      console.error('保存姓名失败:', error)
+      wx.showToast({
+        title: '保存失败，请重试',
+        icon: 'error'
+      })
+    }
+  },
+
+  // 获取微信昵称
+  getWechatName() {
+    // 检查是否支持 getUserProfile
+    if (!wx.getUserProfile) {
+      wx.showToast({
+        title: '当前版本不支持获取微信信息',
+        icon: 'none'
+      })
+      return
+    }
+
+    wx.getUserProfile({
+      desc: '获取微信昵称用于设置收集者姓名',
+      success: (res) => {
+        const nickName = res.userInfo.nickName || '微信用户'
+        this.setData({
+          tempName: nickName
+        })
+        wx.showToast({
+          title: '已获取微信昵称',
+          icon: 'success',
+          duration: 1500
+        })
+      },
+      fail: (err) => {
+        console.error('获取微信信息失败:', err)
+        if (err.errMsg && err.errMsg.includes('auth deny')) {
+          wx.showToast({
+            title: '用户拒绝授权',
+            icon: 'none'
+          })
+        } else {
+          wx.showToast({
+            title: '获取失败，请手动输入',
+            icon: 'none'
+          })
+        }
+      }
+    })
   },
 
   // 初始化云开发
@@ -191,7 +300,7 @@ Page({
             imagePath: cloudImageUrl,
             createTime: record.createTime,
             uploadTime: new Date().toISOString(),
-            collector: record.collector || '未知',
+            collector: record.collector || this.data.collectorName,
             collectorAvatar: record.collectorAvatar || ''
           }
 
