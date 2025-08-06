@@ -154,17 +154,21 @@
 
 .upload-btn {
   width: 100%;
-  padding: 25rpx;
+  padding: 20rpx 25rpx;
   border-radius: 15rpx;
   border: none;
   font-size: 28rpx;
   font-weight: bold;
   display: flex;
+  flex-direction: column; /* 垂直布局 */
   align-items: center;
   justify-content: center;
-  gap: 15rpx;
+  gap: 8rpx; /* 行间距 */
   position: relative;
   transition: all 0.3s ease;
+  min-height: 100rpx; /* 增加高度 */
+  text-align: center;
+  line-height: 1.2;
 }
 
 .upload-btn.active {
@@ -175,6 +179,39 @@
 .upload-btn.synced {
   background: #f0f0f0;
   color: #666;
+}
+
+/* 主文字行样式 */
+.btn-main-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  line-height: 1;
+}
+
+.btn-icon {
+  width: 36rpx;
+  height: 36rpx;
+  flex-shrink: 0;
+}
+
+.loading-spinner {
+  width: 28rpx;
+  height: 28rpx;
+  border: 3rpx solid rgba(255,255,255,0.3);
+  border-top: 3rpx solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+}
+
+/* 次要信息行样式 */
+.btn-sub-row {
+  font-size: 22rpx;
+  opacity: 0.8;
+  line-height: 1;
+  font-weight: normal;
 }
 
 .upload-count {
@@ -319,19 +356,36 @@
 
 .name-input {
   width: 100%;
-  padding: 40rpx;
+  height: 88rpx;
+  padding: 0 30rpx;
   border: 2rpx solid #e0e0e0;
   border-radius: 10rpx;
-  font-size: 38rpx;
+  font-size: 32rpx;
+  line-height: 84rpx;
   background: white;
   transition: border-color 0.3s ease;
   box-sizing: border-box;
+  vertical-align: middle;
+
+  /* 关键修复 - 强制文字颜色可见 */
+  color: #333 !important;
+  -webkit-text-fill-color: #333 !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  
+  /* iOS兼容性 */
+  -webkit-appearance: none;
+  appearance: none;
+  -webkit-font-smoothing: antialiased;
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .name-input:focus {
   border-color: #2196F3;
   background: white;
 }
+
 
 .input-tips {
   margin-top: 20rpx;

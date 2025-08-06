@@ -43,17 +43,23 @@
     <view class="cloud-header">
       <text class="section-title">云端数据管理</text>
     </view>
-    
-    <button class="upload-btn {{localCount > 0 ? 'active' : 'synced'}}" 
-            bindtap="uploadAllData" 
-            disabled="{{localCount === 0 || uploading}}">
-      <image class="btn-icon" src="/images/{{localCount > 0 ? 'cloud-upload' : 'check-circle'}}.png" wx:if="{{!uploading}}"></image>
-      <view class="loading-spinner" wx:else></view>
-      <text wx:if="{{localCount > 0}}">
-        {{uploading ? '上传中...' : '一键上传全部数据'}}
-      </text>
-      <text wx:else>数据已同步</text>
-      <text class="upload-count" wx:if="{{localCount > 0 && !uploading}}">({{localCount}}条)</text>
+
+    <button class="upload-btn {{localCount > 0 ? 'active' : 'synced'}}" bindtap="uploadAllData" disabled="{{localCount === 0 || uploading}}">
+
+      <!-- 主文字行：图标 + 主要文字 -->
+      <view class="btn-main-row">
+        <image class="btn-icon" src="/images/{{localCount > 0 ? 'cloud-upload' : 'check-circle'}}.png" wx:if="{{!uploading}}"></image>
+        <view class="loading-spinner" wx:else></view>
+        <text wx:if="{{localCount > 0}}">
+          {{uploading ? '上传中...' : '一键上传全部数据'}}
+        </text>
+        <text wx:else>数据已同步</text>
+      </view>
+
+      <!-- 次要信息行：数量提示 -->
+      <view class="btn-sub-row" wx:if="{{localCount > 0 && !uploading}}">
+        （{{localCount}}条）
+      </view>
     </button>
   </view>
 
@@ -80,21 +86,14 @@
       <text class="modal-title">设置收集者姓名</text>
       <image class="close-btn" src="/images/close.png" bindtap="hideNameModal"></image>
     </view>
-    
+
     <view class="modal-body">
       <view class="input-group">
         <text class="input-label">姓名</text>
-        <input class="name-input" 
-               placeholder="请输入您的姓名" 
-               value="{{tempName}}" 
-               bindinput="onNameInput" 
-               maxlength="10"
-               cursor-spacing="100"
-               confirm-type="done"
-               placeholder-style="color: #999; font-size: 36rpx; line-height: 1.6;"/>
+        <input class="name-input" placeholder="请输入您的姓名" value="{{tempName}}" bindinput="onNameInput" maxlength="10" cursor-spacing="20" confirm-type="done" />
       </view>
     </view>
-    
+
     <view class="modal-actions">
       <button class="modal-btn cancel" bindtap="hideNameModal">取消</button>
       <button class="modal-btn confirm" bindtap="saveName">保存</button>

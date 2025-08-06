@@ -301,7 +301,6 @@ Page({
             createTime: record.createTime,
             uploadTime: new Date().toISOString(),
             collector: record.collector || this.data.collectorName,
-            collectorAvatar: record.collectorAvatar || ''
           }
 
           await wx.cloud.database().collection('ceramic_records').add({
