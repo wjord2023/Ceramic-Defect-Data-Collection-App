@@ -6,12 +6,17 @@ Page({
     filterType: 'all',
     filterOptions: [
       { label: '全部类型', value: 'all' },
-      { label: '裂纹', value: '裂纹' },
-      { label: '气泡', value: '气泡' },
+      { label: '落渣', value: '落渣' },
+      { label: '缺色', value: '缺色' },
+      { label: '毛孔', value: '毛孔' },
+      { label: '色差', value: '色差' },
       { label: '变形', value: '变形' },
-      { label: '划痕', value: '划痕' },
-      { label: '污渍', value: '污渍' },
-      { label: '缺釉', value: '缺釉' }
+      { label: '坯裂', value: '坯裂' },
+      { label: '温差', value: '温差' },
+      { label: '颗粒', value: '颗粒' },
+      { label: '缺釉', value: '缺釉' },
+      { label: '缩釉', value: '缩釉' },
+      { label: '其他', value: '其他' }
     ],
     filterIndex: 0,
     sortIndex: 0,

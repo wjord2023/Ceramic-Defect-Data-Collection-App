@@ -13,12 +13,17 @@ Page({
       { id: 3, name: '需丢弃', color: '#f44336' }
     ],
     defectTypes: [
-      { id: 1, name: '裂纹', selected: false },
-      { id: 2, name: '气泡', selected: false },
-      { id: 3, name: '变形', selected: false },
-      { id: 4, name: '划痕', selected: false },
-      { id: 5, name: '污渍', selected: false },
-      { id: 6, name: '缺釉', selected: false }
+      { id: 1, name: '落渣', selected: false },
+      { id: 2, name: '缺色', selected: false },
+      { id: 3, name: '毛孔', selected: false },
+      { id: 4, name: '色差', selected: false },
+      { id: 5, name: '变形', selected: false },
+      { id: 6, name: '坯裂', selected: false },
+      { id: 7, name: '温差', selected: false },
+      { id: 8, name: '颗粒', selected: false },
+      { id: 9, name: '缺釉', selected: false },
+      { id: 10, name: '缩釉', selected: false },
+      { id: 11, name: '其他', selected: false }
     ]
   },
 

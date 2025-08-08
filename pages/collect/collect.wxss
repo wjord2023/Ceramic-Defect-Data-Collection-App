@@ -132,16 +132,17 @@
   color: #333;
 }
 
+/* 修改缺陷类型网格布局为3列以适应11个类型 */
 .defect-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 15rpx;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
 }
 
 .defect-btn {
-  padding: 25rpx 20rpx;
-  border-radius: 12rpx;
-  font-size: 28rpx;
+  padding: 20rpx 15rpx;
+  border-radius: 10rpx;
+  font-size: 24rpx;
   font-weight: 500;
   border: 2rpx solid #e0e0e0;
   background: #f8f9fa;
@@ -152,6 +153,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 80rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .defect-btn.selected {

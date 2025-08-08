@@ -12,13 +12,17 @@ Page({
     showNameModal: false,
     tempName: '',
     defectTypes: [
-      { id: 1, name: '裂纹', count: 0, percentage: 0 },
-      { id: 2, name: '气泡', count: 0, percentage: 0 },
-      { id: 3, name: '变形', count: 0, percentage: 0 },
-      { id: 4, name: '划痕', count: 0, percentage: 0 },
-      { id: 5, name: '污渍', count: 0, percentage: 0 },
-      { id: 6, name: '缺釉', count: 0, percentage: 0 },
-      { id: 7, name: '正常', count: 0, percentage: 0 }
+      { id: 1, name: '落渣', count: 0, percentage: 0 },
+      { id: 2, name: '缺色', count: 0, percentage: 0 },
+      { id: 3, name: '毛孔', count: 0, percentage: 0 },
+      { id: 4, name: '色差', count: 0, percentage: 0 },
+      { id: 5, name: '变形', count: 0, percentage: 0 },
+      { id: 6, name: '坯裂', count: 0, percentage: 0 },
+      { id: 7, name: '温差', count: 0, percentage: 0 },
+      { id: 8, name: '颗粒', count: 0, percentage: 0 },
+      { id: 9, name: '缺釉', count: 0, percentage: 0 },
+      { id: 10, name: '缩釉', count: 0, percentage: 0 },
+      { id: 11, name: '其他', count: 0, percentage: 0 }
     ]
   },
 
@@ -218,25 +222,14 @@ Page({
         }
       })
 
-      // 更新缺陷类型统计（不包括"正常"）
+      // 更新缺陷类型统计
       const defectTypes = this.data.defectTypes.map(type => {
-        if (type.name === '正常') {
-          // 正常类型从严重程度统计中获取
-          const count = severityStats['正常']
-          const percentage = records.length > 0 ? (count / records.length * 100) : 0
-          return {
-            ...type,
-            count,
-            percentage: Math.round(percentage)
-          }
-        } else {
-          const count = typeStats[type.name] || 0
-          const percentage = records.length > 0 ? (count / records.length * 100) : 0
-          return {
-            ...type,
-            count,
-            percentage: Math.round(percentage)
-          }
+        const count = typeStats[type.name] || 0
+        const percentage = records.length > 0 ? (count / records.length * 100) : 0
+        return {
+          ...type,
+          count,
+          percentage: Math.round(percentage)
         }
       })
 
